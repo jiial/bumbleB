@@ -1,0 +1,11 @@
+<aspectj>
+    <weaver options="-verbose -showWeaveInfo">
+        <include within="com.jiial.bumbleB.aspects.*"/>
+        <include within="com.jiial.bumbleB.examples.integrationSteps.*"/>
+        <include within="com.jiial.bumbleB.examples.uiSteps.*"/>
+        <include within="com.jiial.bumbleB.examples.*"/>
+    </weaver>
+    <aspects>
+        <aspect name="com.jiial.bumbleB.aspects.StepAspect"/>
+    </aspects>
+</aspectj>

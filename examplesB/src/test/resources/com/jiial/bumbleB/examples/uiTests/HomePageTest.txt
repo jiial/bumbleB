@@ -1,0 +1,4 @@
+Example: The home page contains the expected text
+
+Given the front page is shown
+Then the page contains text {text}

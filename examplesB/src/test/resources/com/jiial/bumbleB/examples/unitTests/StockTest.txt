@@ -1,0 +1,5 @@
+Example: Adding items to stock
+
+Given item {item} is added to the stock
+And item {item} is added to the stock
+Then the stock is equal to

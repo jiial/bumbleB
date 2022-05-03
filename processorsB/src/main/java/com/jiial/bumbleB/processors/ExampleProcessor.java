@@ -42,7 +42,7 @@ public class ExampleProcessor extends AbstractProcessor {
             stepMappings.put(element.getSimpleName().toString(), element.getAnnotation(Step.class).value());
         }
 
-        // Save annotation values to external file to support multiple modules
+        // Save annotation values to external file to support multiple modules (required for unit testing)
         try {
             Writer writer = new PrintWriter(new FileOutputStream("target/mappings.txt", true));
             stepMappings.forEach((k, v) -> {
@@ -82,7 +82,14 @@ public class ExampleProcessor extends AbstractProcessor {
             MethodTree methodTree = scanner.scan(element, this.trees);
             methodTree.getBody().getStatements().forEach(
                     statement -> {
-                        whatToWrite.add(getTitle(statement.toString()));
+                        String title = getTitle(statement.toString());
+                        String narrative = getNarrative(statement.toString());
+                        if (title != null) {
+                            whatToWrite.add(title);
+                        }
+                        if (narrative != null) {
+                            whatToWrite.add(narrative);
+                        }
                         whatToWrite.addAll(getDefinitions(statement.toString()));
 
                     }
@@ -171,30 +178,57 @@ public class ExampleProcessor extends AbstractProcessor {
     }
 
     private String getTitle(String statement) {
-        String[] temp = statement.split("name\\(");
-        String name = temp[1].split("\\)")[0]
-                .replaceAll("\"", "")
-                .replaceAll("\\\\", "");
-        return "Example: " + name + "\n";
+        if (statement.contains("name(")) {
+            String[] temp = statement.split("name\\(");
+            String name = temp[1].split("\\)")[0]
+                    .replaceAll("\"", "")
+                    .replaceAll("\\\\", "");
+            return "Example: " + name + "\n";
+        }
+        return null;
     }
 
-
+    private String getNarrative(String statement) {
+        if (statement.contains("narrative(")) {
+            String[] temp = statement.split("narrative\\(");
+            String name = temp[1].split("\\)")[0]
+                    .replaceAll("\"", "")
+                    .replaceAll("\\\\", "");
+            return "Narrative: " + name + "\n";
+        }
+        return null;
+    }
 
     private List<String> getDefinitions(String statement) {
-        statement = statement.replaceAll(" ", "");
+        statement = statement.trim();
         statement = statement.replaceAll("\n", "");
-        String splitStatement = statement.split("steps\\(")[1].split("\\)\\)\\.")[0];
+        String splitStatement = statement.split("teps\\(")[1].split("\\)\\)\\.")[0];
         String[] splitByComma = splitStatement.split(",");
         List<String> initialSteps = new ArrayList<>(Arrays.asList(splitByComma));
         List<String> actualSteps = new ArrayList<>();
         for (String initialStep : initialSteps) {
             if (initialStep.contains("::")) {
-                String[] temp = initialStep.split("\\(");
+                String[] temp = initialStep.split("\\(", 2);
                 String[] temp2 = temp[1].split("::");
-                String stepType = temp[0].toUpperCase().charAt(0) + temp[0].substring(1);
-                String methodName = temp2[1].replaceAll("\\)", "").split("\\.")[0];
+                String stepType = temp[0].trim().toUpperCase().charAt(0) + temp[0].trim().substring(1);
+                String[] temp3 = temp2[1].replaceAll("\\)", "").split("\\.");
+                String methodName = temp3[0].trim();
+                String because = null;
+                if (temp3.length > 1 && temp3[1] != null && temp3[1].contains("because(")) {
+                    because = temp3[1].trim().split("because\\(")[1].split("\\)")[0];
+                }
                 String annotationValue = stepMappings.get(methodName);
-                actualSteps.add(stepType + " " + annotationValue);
+                String actualStep;
+                if (because != null) {
+                    actualStep = stepType + " " + annotationValue + "\n\t" + "Because: " + because;
+                } else {
+                    actualStep = stepType + " " + annotationValue;
+                }
+                actualSteps.add(actualStep);
+            } else if (initialStep.contains("because(")) {
+                String because = initialStep.split("because\\(")[1].split("\\)")[0].trim();
+                int index = actualSteps.size() - 1;
+                actualSteps.set(index, actualSteps.get(index).concat("\n\t" + "Because: " + because));
             }
         }
         return actualSteps;

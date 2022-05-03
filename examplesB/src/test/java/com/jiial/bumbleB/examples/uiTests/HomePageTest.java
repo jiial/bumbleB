@@ -11,7 +11,7 @@ public class HomePageTest {
 
     private final ExampleDefinition.ExampleBuilder builder = new ExampleDefinition.ExampleBuilder();
     private final HomePageSteps homePageSteps = new HomePageSteps();
-    private static final String EXPECTED_TEXT = "Spend the summer studying";
+    private static final String EXPECTED_TEXT = "Helsinki";
 
     @Example
     public void homePageContainsExpectedText() {

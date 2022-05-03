@@ -10,6 +10,7 @@ And the customer adds item {item} to the cart
 And the customer removes item {item} from the cart
 And the customer removes item {item} from the cart
 Then the cart is empty
+	Because: "Every item that was added was also removed"
 
 
 Example: User can't delete items from an empty cart
@@ -18,6 +19,7 @@ Given the items {items} have been added to stock
 And customer {firstName} {lastName} is logged in
 And the customer's contact information is set to {contactInfo}
 Then removing item {item} from cart throws an exception
+	Because: "The cart is empty"
 And removing item {item} from stock throws an exception
 
 

@@ -6,7 +6,11 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+/**
+ * Main logic for the BDD framework.
+ *
+ * @author jone.lang
+ */
 public class Framework {
 
     public static final ThreadLocal<StateHolder> state = ThreadLocal.withInitial(StateHolder::new);
@@ -27,6 +31,11 @@ public class Framework {
         }
 
         public void run() {
+            // Print name and narrative
+            System.out.println("Test: " + this.name + "\n");
+            if (this.narrative != null) {
+                System.out.println("Narrative: " + this.narrative + "\n");
+            }
             for (Step<?> step : steps) {
                 // Set args for StepAspect
                 state.get().setArgs(step.args);
@@ -40,6 +49,9 @@ public class Framework {
                 } else {
                     System.out.println(step.stepType + " " + step.stepDefinition);
                 }
+                if (step.explanation != null) {
+                    System.out.println("\tBecause: " + step.explanation);
+                }
             }
             System.out.println("\n");
         }
@@ -48,21 +60,53 @@ public class Framework {
             try {
                 Runnable runnable = (Runnable) step.reference;
                 runnable.run();
-            } catch (Exception ignored) {
+            } catch (ClassCastException ignored) {
             } try {
                 Supplier<?> supplier = (Supplier<?>) step.reference;
                 if (step.expectation != null) {
                     assertThat(supplier.get()).isEqualTo(step.expectation);
                 }
-            } catch (Exception ignored) {
+            } catch (ClassCastException ignored) {
             } try {
                 OneParamConsumer consumer = (OneParamConsumer) step.reference;
                 consumer.accept(step.args[0]);
-            } catch (Exception ignored) {
+            } catch (ClassCastException ignored) {
             } try {
                 TwoParamConsumer consumer = (TwoParamConsumer) step.reference;
                 consumer.accept(step.args[0], step.args[1]);
-            } catch (Exception ignored) {
+            } catch (ClassCastException ignored) {
+            } try {
+                ThreeParamConsumer consumer = (ThreeParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2]);
+            } catch (ClassCastException ignored) {
+            } try {
+                FourParamConsumer consumer = (FourParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3]);
+            } catch (ClassCastException ignored) {
+            } try {
+                FiveParamConsumer consumer = (FiveParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4]);
+            } catch (ClassCastException ignored) {
+            } try {
+                SixParamConsumer consumer = (SixParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4], step.args[5]);
+            } catch (ClassCastException ignored) {
+            } try {
+                SevenParamConsumer consumer = (SevenParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4], step.args[5], step.args[6]);
+            } catch (ClassCastException ignored) {
+            } try {
+                EightParamConsumer consumer = (EightParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4], step.args[5], step.args[6], step.args[7]);
+            } catch (ClassCastException ignored) {
+            } try {
+                NineParamConsumer consumer = (NineParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4], step.args[5], step.args[6], step.args[7], step.args[8]);
+            } catch (ClassCastException ignored) {
+            } try {
+                TenParamConsumer consumer = (TenParamConsumer) step.reference;
+                consumer.accept(step.args[0], step.args[1], step.args[2], step.args[3], step.args[4], step.args[5], step.args[6], step.args[7], step.args[8], step.args[9]);
+            } catch (ClassCastException ignored) {
             }
         }
 
@@ -176,58 +220,227 @@ public class Framework {
     }
 
     // No param supplier (test)
-    public static <U> Step<?> then(Supplier<U> u) {
-        return Step.of(DefaultStepType.THEN, u);
+
+    /**
+     * Experimental method to support unit testing. A supplier is used to set the expected outcome of the method reference that is used in the step.
+     * @param q Supplier for the method we want to call
+     * @param <Q> The return type of the method
+     * @return a new step instance
+     */
+    public static <Q> Step<?> then(Supplier<Q> q) {
+        return Step.of(DefaultStepType.THEN, q);
     }
 
     // One param
-    public static <U> Step<?> given(OneParamConsumer<U> c, U arg2) {
-        return Step.of(DefaultStepType.GIVEN, c, arg2);
+    public static <Q> Step<?> given(OneParamConsumer<Q> c, Q q) {
+        return Step.of(DefaultStepType.GIVEN, c, q);
     }
 
-    public static <U> Step<?> when(OneParamConsumer<U> c, U arg2) {
-        return Step.of(DefaultStepType.WHEN, c, arg2);
+    public static <Q> Step<?> when(OneParamConsumer<Q> c, Q q) {
+        return Step.of(DefaultStepType.WHEN, c, q);
     }
 
-    public static <U> Step<?> then(OneParamConsumer<U> c, U arg2) {
-        return Step.of(DefaultStepType.THEN, c, arg2);
+    public static <Q> Step<?> then(OneParamConsumer<Q> c, Q q) {
+        return Step.of(DefaultStepType.THEN, c, q);
     }
 
-    public static <U> Step<?> and(OneParamConsumer<U> c, U arg2) {
-        return Step.of(state.get().getPrev(), c, arg2);
+    public static <Q> Step<?> and(OneParamConsumer<Q> c, Q q) {
+        return Step.of(state.get().getPrev(), c, q);
     }
 
     // Two params
-    public static <U, V> Step<?> given(TwoParamConsumer<U, V> c, U arg2, V arg3) {
-        return Step.of(DefaultStepType.GIVEN, c, arg2, arg3);
+    public static <Q, R> Step<?> given(TwoParamConsumer<Q, R> c, Q q, R r) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r);
     }
 
-    public static <U, V> Step<?> when(TwoParamConsumer<U, V> c, U arg2, V arg3) {
-        return Step.of(DefaultStepType.WHEN, c, arg2, arg3);
+    public static <Q, R> Step<?> when(TwoParamConsumer<Q, R> c, Q q, R r) {
+        return Step.of(DefaultStepType.WHEN, c, q, r);
     }
 
-    public static <U, V> Step<?> then(TwoParamConsumer<U, V> c, U arg2, V arg3) {
-        return Step.of(DefaultStepType.THEN, c, arg2, arg3);
+    public static <Q, R> Step<?> then(TwoParamConsumer<Q, R> c, Q q, R r) {
+        return Step.of(DefaultStepType.THEN, c, q, r);
     }
 
-    public static <U, V> Step<?> and(TwoParamConsumer<U, V> c, U arg2, V arg3) {
-        return Step.of(state.get().getPrev(), c, arg2, arg3);
+    public static <Q, R> Step<?> and(TwoParamConsumer<Q, R> c, Q q, R r) {
+        return Step.of(state.get().getPrev(), c, q, r);
+    }
+
+    // Three params
+    public static <Q, R, S> Step<?> given(ThreeParamConsumer<Q, R, S> c, Q q, R r, S s) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s);
+    }
+
+    public static <Q, R, S> Step<?> when(ThreeParamConsumer<Q, R, S> c, Q q, R r, S s) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s);
+    }
+
+    public static <Q, R, S> Step<?> then(ThreeParamConsumer<Q, R, S> c, Q q, R r, S s) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s);
+    }
+
+    public static <Q, R, S> Step<?> and(ThreeParamConsumer<Q, R, S> c, Q q, R r, S s) {
+        return Step.of(state.get().getPrev(), c, q, r, s);
+    }
+
+    // Four params
+    public static <Q, R, S, T> Step<?> given(FourParamConsumer<Q, R, S, T> c, Q q, R r, S s, T t) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t);
+    }
+
+    public static <Q, R, S, T> Step<?> when(FourParamConsumer<Q, R, S, T> c, Q q, R r, S s, T t) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t);
+    }
+
+    public static <Q, R, S, T> Step<?> then(FourParamConsumer<Q, R, S, T> c, Q q, R r, S s, T t) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t);
+    }
+
+    public static <Q, R, S, T> Step<?> and(FourParamConsumer<Q, R, S, T> c, Q q, R r, S s, T t) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t);
+    }
+
+    // Five params
+    public static <Q, R, S, T, U> Step<?> given(FiveParamConsumer<Q, R, S, T, U> c, Q q, R r, S s, T t, U u) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u);
+    }
+
+    public static <Q, R, S, T, U> Step<?> when(FiveParamConsumer<Q, R, S, T, U> c, Q q, R r, S s, T t, U u) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u);
+    }
+
+    public static <Q, R, S, T, U> Step<?> then(FiveParamConsumer<Q, R, S, T, U> c, Q q, R r, S s, T t, U u) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u);
+    }
+
+    public static <Q, R, S, T, U> Step<?> and(FiveParamConsumer<Q, R, S, T, U> c, Q q, R r, S s, T t, U u) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u);
+    }
+
+    // Six params
+    public static <Q, R, S, T, U, V> Step<?> given(SixParamConsumer<Q, R, S, T, U, V> c, Q q, R r, S s, T t, U u, V v) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u, v);
+    }
+
+    public static <Q, R, S, T, U, V> Step<?> when(SixParamConsumer<Q, R, S, T, U, V> c, Q q, R r, S s, T t, U u, V v) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u, v);
+    }
+
+    public static <Q, R, S, T, U, V> Step<?> then(SixParamConsumer<Q, R, S, T, U, V> c, Q q, R r, S s, T t, U u, V v) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u, v);
+    }
+
+    public static <Q, R, S, T, U, V> Step<?> and(SixParamConsumer<Q, R, S, T, U, V> c, Q q, R r, S s, T t, U u, V v) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u, v);
+    }
+
+    // Seven params
+    public static <Q, R, S, T, U, V, W> Step<?> given(SevenParamConsumer<Q, R, S, T, U, V, W> c, Q q, R r, S s, T t, U u, V v, W w) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u, v, w);
+    }
+
+    public static <Q, R, S, T, U, V, W> Step<?> when(SevenParamConsumer<Q, R, S, T, U, V, W> c, Q q, R r, S s, T t, U u, V v, W w) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u, v, w);
+    }
+
+    public static <Q, R, S, T, U, V, W> Step<?> then(SevenParamConsumer<Q, R, S, T, U, V, W> c, Q q, R r, S s, T t, U u, V v, W w) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u, v, w);
+    }
+
+    public static <Q, R, S, T, U, V, W> Step<?> and(SevenParamConsumer<Q, R, S, T, U, V, W> c, Q q, R r, S s, T t, U u, V v, W w) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u, v, w);
+    }
+
+    // Eight params
+    public static <Q, R, S, T, U, V, W, X> Step<?> given(EightParamConsumer<Q, R, S, T, U, V, W, X> c, Q q, R r, S s, T t, U u, V v, W w, X x) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u, v, w, x);
+    }
+
+    public static <Q, R, S, T, U, V, W, X> Step<?> when(EightParamConsumer<Q, R, S, T, U, V, W, X> c, Q q, R r, S s, T t, U u, V v, W w, X x) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u, v, w, x);
+    }
+
+    public static <Q, R, S, T, U, V, W, X> Step<?> then(EightParamConsumer<Q, R, S, T, U, V, W, X> c, Q q, R r, S s, T t, U u, V v, W w, X x) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u, v, w, x);
+    }
+
+    public static <Q, R, S, T, U, V, W, X> Step<?> and(EightParamConsumer<Q, R, S, T, U, V, W, X> c, Q q, R r, S s, T t, U u, V v, W w, X x) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u, v, w, x);
+    }
+
+    // Nine params
+    public static <Q, R, S, T, U, V, W, X, Y> Step<?> given(NineParamConsumer<Q, R, S, T, U, V, W, X, Y> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u, v, w, x, y);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y> Step<?> when(NineParamConsumer<Q, R, S, T, U, V, W, X, Y> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u, v, w, x, y);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y> Step<?> then(NineParamConsumer<Q, R, S, T, U, V, W, X, Y> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u, v, w, x, y);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y> Step<?> and(NineParamConsumer<Q, R, S, T, U, V, W, X, Y> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u, v, w, x, y);
+    }
+
+    // Ten params
+    public static <Q, R, S, T, U, V, W, X, Y, Z> Step<?> given(TenParamConsumer<Q, R, S, T, U, V, W, X, Y, Z> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z) {
+        return Step.of(DefaultStepType.GIVEN, c, q, r, s, t, u, v, w, x, y, z);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y, Z> Step<?> when(TenParamConsumer<Q, R, S, T, U, V, W, X, Y, Z> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z) {
+        return Step.of(DefaultStepType.WHEN, c, q, r, s, t, u, v, w, x, y, z);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y, Z> Step<?> then(TenParamConsumer<Q, R, S, T, U, V, W, X, Y, Z> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z) {
+        return Step.of(DefaultStepType.THEN, c, q, r, s, t, u, v, w, x, y, z);
+    }
+
+    public static <Q, R, S, T, U, V, W, X, Y, Z> Step<?> and(TenParamConsumer<Q, R, S, T, U, V, W, X, Y, Z> c, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z) {
+        return Step.of(state.get().getPrev(), c, q, r, s, t, u, v, w, x, y, z);
     }
 
     // ------------------------------------------------------------------------------------------------------------
     // Consumers used by givens/whens/thens
 
-    public interface OneParamConsumer<U> {
-        void accept(U u);
+    public interface OneParamConsumer<Q> {
+        void accept(Q q);
     }
 
-    public interface TwoParamConsumer<U, V> {
-        void accept(U u, V v);
+    public interface TwoParamConsumer<Q, R> {
+        void accept(Q q, R r);
     }
 
-    public interface ThreeParamConsumer<U, V, W> {
-        void accept(U u, V v, W w);
+    public interface ThreeParamConsumer<Q, R, S> {
+        void accept(Q q, R r, S s);
     }
 
-    // etc....
+    public interface FourParamConsumer<Q, R, S, T> {
+        void accept(Q q, R r, S s, T t);
+    }
+
+    public interface FiveParamConsumer<Q, R, S, T, U> {
+        void accept(Q q, R r, S s, T t, U u);
+    }
+
+    public interface SixParamConsumer<Q, R, S, T, U, V> {
+        void accept(Q q, R r, S s, T t, U u, V v);
+    }
+
+    public interface SevenParamConsumer<Q, R, S, T, U, V, W> {
+        void accept(Q q, R r, S s, T t, U u, V v, W w);
+    }
+
+    public interface EightParamConsumer<Q, R, S, T, U, V, W, X> {
+        void accept(Q q, R r, S s, T t, U u, V v, W w, X x);
+    }
+
+    public interface NineParamConsumer<Q, R, S, T, U, V, W, X, Y> {
+        void accept(Q q, R r, S s, T t, U u, V v, W w, X x, Y y);
+    }
+
+    public interface TenParamConsumer<Q, R, S, T, U, V, W, X, Y, Z> {
+        void accept(Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z);
+    }
 }

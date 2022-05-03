@@ -14,7 +14,7 @@ import static com.jiial.bumbleB.framework.Framework.*;
 
 public class ShoppingCartTest {
 
-    private final ExampleDefinition.ExampleBuilder builder = new ExampleDefinition.ExampleBuilder();
+    private final ExampleDefinition.ExampleBuilder exampleBuilder = new ExampleDefinition.ExampleBuilder();
     private ShopSteps shopSteps;
     private final String FIRST_NAME = "Bob";
     private final String LAST_NAME = "Barker";
@@ -37,7 +37,7 @@ public class ShoppingCartTest {
 
     @Example
     public void userCanAddAndRemoveItemsFromTheCart() {
-        builder
+        exampleBuilder
                 .name("User is able to add items to cart and remove them")
                 .steps(
                         given(shopSteps::addItemsToStock, ITEMS),
@@ -50,6 +50,7 @@ public class ShoppingCartTest {
                         and(shopSteps::removeItemFromCart, POTATO),
                         and(shopSteps::removeItemFromCart, POTATO),
                         then(shopSteps::assertThatCartIsEmpty)
+                                .because("Every item that was added was also removed")
                 )
                 .build()
                 .run();
@@ -57,13 +58,14 @@ public class ShoppingCartTest {
 
     @Example
     public void removingFromEmptyCartThrowsAnException() {
-        builder
+        exampleBuilder
                 .name("User can't delete items from an empty cart")
                 .steps(
                         given(shopSteps::addItemsToStock, EMPTY_ITEMS),
                         and(shopSteps::userLogsIn, FIRST_NAME, LAST_NAME),
                         and(shopSteps::setContactInfo, CONTACT_INFO),
-                        then(shopSteps::removingFromCartThrowsException, CUCUMBER),
+                        then(shopSteps::removingFromCartThrowsException, CUCUMBER)
+                                .because("The cart is empty"),
                         and(shopSteps::removingFromEmptyStockThrowsException, CUCUMBER)
                 )
                 .build()
@@ -72,7 +74,7 @@ public class ShoppingCartTest {
 
     @Example
     public void itemPricesWorkAsExpected() {
-        builder
+        exampleBuilder
                 .name("Item prices are counted correctly")
                 .steps(
                         given(shopSteps::addItemsToStock, ITEMS),

@@ -1,4 +1,4 @@
-#Documentation
+# Documentation
 
 ## Contents
 [1. Getting started](Documentation.md#1-getting-started)  

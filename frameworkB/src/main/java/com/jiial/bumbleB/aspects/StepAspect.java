@@ -18,7 +18,7 @@ public class StepAspect {
     }
 
     @Before("callStep(step)")
-    public void setMethodNameToFrameWork(JoinPoint joinPoint, Step step) {
+    public void setMethodNameToFramework(JoinPoint joinPoint, Step step) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         if (method.isAnnotationPresent(Step.class)) {

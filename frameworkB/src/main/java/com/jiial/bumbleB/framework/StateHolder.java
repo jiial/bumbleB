@@ -1,15 +1,18 @@
 package com.jiial.bumbleB.framework;
 
+/**
+ * StateHolder used to pass information between {@link Framework} and {@link com.jiial.bumbleB.aspects.StepAspect}.
+ */
 public class StateHolder {
-    private Framework.StepType prev;
+    private Utils.StepType prev;
     private String stepDefinition;
     private Object[] args;
 
-    public Framework.StepType getPrev() {
+    public Utils.StepType getPrev() {
         return prev;
     }
 
-    public void setPrev(Framework.StepType prev) {
+    public void setPrev(Utils.StepType prev) {
         this.prev = prev;
     }
 

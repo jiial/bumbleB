@@ -202,31 +202,51 @@ public class ExampleProcessor extends AbstractProcessor {
     private List<String> getDefinitions(String statement) {
         statement = statement.trim();
         statement = statement.replaceAll("\n", "");
-        String splitStatement = statement.split("teps\\(")[1].split("\\)\\)\\.")[0];
+        String exampleMethods = "build|narrative|name";
+        String regexForStepsEnding = "\\)\\)\\." + "(" + exampleMethods + ")";
+        String splitStatement = statement.split("teps\\(")[1].split(regexForStepsEnding)[0];
         String[] splitByComma = splitStatement.split(",");
         List<String> initialSteps = new ArrayList<>(Arrays.asList(splitByComma));
         List<String> actualSteps = new ArrayList<>();
+        String prevType = null;
         for (String initialStep : initialSteps) {
-            if (initialStep.contains("::")) {
+            if (initialStep.contains("describeAs(")) {
+                String stepType;
+                if (initialStep.contains("::")) {
+                    stepType = initialStep.split("\\(")[0].trim();
+                    stepType = stepType.toUpperCase().charAt(0) + stepType.substring(1);
+                } else {
+                    stepType = prevType;
+                }
+                String description = initialStep.split("describeAs\\(")[1].split("\\)")[0].trim().replaceAll("\"", "");
+                actualSteps.add(stepType + " " + description);
+            } else if (initialStep.contains("::")) {
                 String[] temp = initialStep.split("\\(", 2);
                 String[] temp2 = temp[1].split("::");
                 String stepType = temp[0].trim().toUpperCase().charAt(0) + temp[0].trim().substring(1);
+                // Only update previous type for legit step types and not method calls related to Step.satisfies()
+                if (!stepType.contains(".") && !stepType.contains("(") && !stepType.contains(")")) {
+                    prevType = stepType;
+                }
                 String[] temp3 = temp2[1].replaceAll("\\)", "").split("\\.");
                 String methodName = temp3[0].trim();
                 String because = null;
                 if (temp3.length > 1 && temp3[1] != null && temp3[1].contains("because(")) {
-                    because = temp3[1].trim().split("because\\(")[1].split("\\)")[0];
+                    because = temp3[1].trim().split("because\\(")[1].split("\\)")[0].replaceAll("\"", "");
                 }
                 String annotationValue = stepMappings.get(methodName);
-                String actualStep;
-                if (because != null) {
-                    actualStep = stepType + " " + annotationValue + "\n\t" + "Because: " + because;
-                } else {
-                    actualStep = stepType + " " + annotationValue;
+                // The annotation value is not found for steps of unit tests as the methods are not annotated
+                if (annotationValue != null) {
+                    String actualStep;
+                    if (because != null) {
+                        actualStep = stepType + " " + annotationValue + "\n\t" + "Because: " + because;
+                    } else {
+                        actualStep = stepType + " " + annotationValue;
+                    }
+                    actualSteps.add(actualStep);
                 }
-                actualSteps.add(actualStep);
             } else if (initialStep.contains("because(")) {
-                String because = initialStep.split("because\\(")[1].split("\\)")[0].trim();
+                String because = initialStep.split("because\\(")[1].split("\\)")[0].trim().replaceAll("\"", "");
                 int index = actualSteps.size() - 1;
                 actualSteps.set(index, actualSteps.get(index).concat("\n\t" + "Because: " + because));
             }

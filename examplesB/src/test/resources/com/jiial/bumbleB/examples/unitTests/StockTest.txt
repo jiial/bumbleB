@@ -1,5 +1,5 @@
 Example: Adding items to stock
 
-Given item {item} is added to the stock
-And item {item} is added to the stock
-Then the stock is equal to
+Then the stock is not empty
+And there is [amount] {item} in the stock
+And the stock is equal to [stock]

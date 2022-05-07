@@ -1,14 +1,11 @@
 package com.jiial.bumbleB.examples;
 
-import com.jiial.bumbleB.annotations.Step;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class Stock {
     private final Map<Item, Integer> items = new HashMap<>();
 
-    @Step("item {item} is added to the stock")
     public void add(Item item) {
         if (items.containsKey(item)) {
             items.put(item, items.get(item) + 1);
@@ -27,8 +24,20 @@ public class Stock {
         }
     }
 
-    @Step("the stock is equal to")
     public Map<Item, Integer> getItems() {
         return items;
+    }
+
+    public int getAmount(String item) {
+        for (Item i : items.keySet()) {
+            if (i.name().equals(item)) {
+                return items.get(i);
+            }
+        }
+        return 0;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 }

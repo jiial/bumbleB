@@ -6,7 +6,6 @@
         <include within="com.jiial.bumbleB.examples.unitTests.*"/>
         <include within="com.jiial.bumbleB.examples.integrationTests.*"/>
         <include within="com.jiial.bumbleB.examples.uiTests.*"/>
-        <include within="org.junit.jupiter.api.AssertionUtils.*"/>
     </weaver>
     <aspects>
         <aspect name="com.jiial.bumbleB.aspects.ExampleAspect"/>

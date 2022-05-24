@@ -79,7 +79,7 @@ the steps above.
 
 Finally, you have to set the *settings.localRepository* environment variable to your local Maven repository. This is used in the Maven surefire plugin configuration for AspectJ to find the aspect weaver.
 
-
+bumbleB has been tested on Java 17, other versions are untested. Presumably it should run on older versions too.
 
 ## 2. Writing tests
 bumbleB tests are written in Java code, using the methods provided by the [framework](frameworkB/src/main/java/com/jiial/bumbleB/framework/Framework.java).
@@ -172,7 +172,7 @@ More examples can be seen in the [examplesB](examplesB)-project.
 When you build your project, bumbleB will generate a human-readable .txt file for each test based on your step definitions.
 
 
-bumbleB tests are run using the JUnit framework. Each example (scenario) is run as its own test. You can run the tests in your IDE by clicking the run icon that appears 
+bumbleB tests are run using the JUnit framework (JUnit 5). Each example (scenario) is run as its own test. You can run the tests in your IDE by clicking the run icon that appears 
 next to each testable class (a class with one or more examples) to run all the tests within that class, or you can click
 a similar icon next to a single example to run a single scenario. To run larger sets of tests, you can define test suites (see more [here](https://junit.org/junit5/docs/current/user-guide/#junit-platform-suite-engine)).
 To run all your tests via maven, you can use e.g. the following:

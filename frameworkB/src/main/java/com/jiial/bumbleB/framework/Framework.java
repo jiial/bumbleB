@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.jiial.bumbleB.framework.Utils.*;
+import com.jiial.bumbleB.logging.Logger;
+import com.jiial.bumbleB.reporting.HtmlReportBuilder;
+import org.opentest4j.AssertionFailedError;
 
+import static com.jiial.bumbleB.framework.Utils.getLogger;
 import static com.jiial.bumbleB.framework.Utils.isSupplier;
 
 /**
@@ -17,49 +21,63 @@ public class Framework {
 
     // Thread-local state to support parallel execution
     public static final ThreadLocal<StateHolder> state = ThreadLocal.withInitial(StateHolder::new);
+    private static final Logger logger = getLogger();
 
     public static class ExampleDefinition {
         String name;
         List<Step<?, ?>> steps;
         String narrative;
+        String testClass;
 
         public ExampleDefinition(ExampleBuilder builder) {
             this.name = builder.name;
             this.narrative = builder.narrative;
             this.steps = builder.steps;
+            this.testClass = builder.testClass;
         }
 
         public List<Step<?, ?>> getSteps() {
-            return steps;
+            return this.steps;
+        }
+
+        public String getTestClass() {
+            return this.testClass;
+        }
+
+        public String getName() {
+            return this.name;
         }
 
         public void run() {
+            // Get starting time for test
+            long startTime = System.nanoTime();
             // Print name and narrative
-            System.out.println("Example: " + this.name + "\n");
+            logger.log("Example: " + this.name + "\n");
             if (this.narrative != null) {
-                System.out.println("Narrative: " + this.narrative + "\n");
+                logger.log("Narrative: " + this.narrative + "\n");
             }
             for (Step<?, ?> step : steps) {
+                // Get starting time for step
+                long stepStartTime = System.nanoTime();
                 // Set args for StepAspect
                 state.get().setArgs(step.args);
+
                 // Cast the method reference to correct type and execute the step
-                castAndExecute(step);
-                // Get step definition/annotation value from state after aspect code has been executed
-                // Not needed if running steps for unit tests as the value is set explicitly in the describeAs-method
-                if (step.stepDefinition == null) {
-                    step.stepDefinition = state.get().getStepDefinition();
-                }
-                // Print out the step type and definition
-                if (step.expected != null) {
-                    System.out.println(step.stepType + " " + step.stepDefinition.replaceAll("\\{\\w*\\}", step.expected.toString()));
-                } else {
-                    System.out.println(step.stepType + " " + step.stepDefinition);
-                }
-                if (step.explanation != null) {
-                    System.out.println("\tBecause: " + step.explanation);
+                try {
+                    castAndExecute(step);
+                    // Set the execution time for the step
+                    step.setExecutionTime((double) (System.nanoTime() - stepStartTime) / 1_000_000_000);
+                    printStepInformation(step);
+                } catch (AssertionFailedError error) {
+                    printStepInformation(step);
+                    if (Framework.state.get().getStepPassed() != null && !Framework.state.get().getStepPassed()) {
+                        markStepFailed(step);
+                    }
+                    finishExecution(((double) System.nanoTime() - startTime) / 1_000_000_000);
+                    throw error;
                 }
             }
-            System.out.println("\n");
+            finishExecution(((double) System.nanoTime() - startTime) / 1_000_000_000);
         }
 
         private void castAndExecute(Step<?, ?> step) {
@@ -76,10 +94,14 @@ public class Framework {
                     OneParamConsumer consumer = (OneParamConsumer) step.condition;
                     consumer.accept(supplier.get());
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 } try {
                     TwoParamConsumer consumer = (TwoParamConsumer) step.condition;
                     consumer.accept(step.expected, supplier.get());
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 }
             } catch (ClassCastException ignored) {
             } try {
@@ -128,10 +150,14 @@ public class Framework {
                     OneParamConsumer consumer = (OneParamConsumer) step.condition;
                     consumer.accept(supplier.get(step.args[0]));
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 } try {
                     TwoParamConsumer consumer = (TwoParamConsumer) step.condition;
                     consumer.accept(step.expected, supplier.get(step.args[0]));
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 }
             } catch (ClassCastException ignored) {
             } try {
@@ -140,22 +166,61 @@ public class Framework {
                     OneParamConsumer consumer = (OneParamConsumer) step.condition;
                     consumer.accept(supplier.get(step.args[0], step.args[1]));
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 } try {
                     TwoParamConsumer consumer = (TwoParamConsumer) step.condition;
                     consumer.accept(step.expected, supplier.get(step.args[0], step.args[1]));
                 } catch (ClassCastException ignored) {
+                } catch (AssertionFailedError failed) {
+                    handleFailedAssertion(failed);
                 }
             } catch (ClassCastException ignored) {
             }
             // TODO: add the rest of the suppliers
         }
 
+        private void printStepInformation(Step<?, ?> step) {
+            // Get step definition/annotation value from state after aspect code has been executed
+            // Not needed if the value has been set explicitly in the describeAs-method
+            if (step.stepDefinition == null) {
+                step.stepDefinition = state.get().getStepDefinition();
+            }
+            // Print out the step type and definition
+            if (step.expected != null) {
+                logger.log(step.stepType + " " + step.stepDefinition.replaceAll("\\{\\w*\\}", step.expected.toString()));
+            } else {
+                logger.log(step.stepType + " " + step.stepDefinition);
+            }
+            if (step.explanation != null) {
+                logger.log("\tBecause: " + step.explanation);
+            }
+        }
+
+        private void finishExecution(double executionTime) {
+            logger.log("\n");
+            HtmlReportBuilder.add(this, executionTime);
+        }
+
+        private void markStepFailed(Step<?, ?> step) {
+            Step<?, ?> stepRef = new Step<>(step);
+            stepRef.passed = Framework.state.get().getStepPassed();
+            List<Step<?, ?>> updatedSteps = new ArrayList<>(this.steps);
+            updatedSteps.set(this.steps.indexOf(step), stepRef);
+            this.steps = updatedSteps;
+        }
+
+        private void handleFailedAssertion(AssertionFailedError error) {
+            Framework.state.get().setStepPassed(false);
+            throw error;
+        }
+
         public static class ExampleBuilder {
 
             private String name;
             List<Step<?, ?>> steps;
-
             String narrative;
+            String testClass;
 
             public ExampleBuilder() {
                 this.steps = new ArrayList<>();
@@ -177,6 +242,7 @@ public class Framework {
             }
 
             public ExampleDefinition build() {
+                this.testClass = state.get().getClassName();
                 return new ExampleDefinition(this);
             }
         }
@@ -187,10 +253,12 @@ public class Framework {
         private final StepType stepType;
         private String stepDefinition;
         private final A reference;
-        private Object[] args;
+        private final Object[] args;
         private String explanation;
         private Object expected;
         private B condition;
+        private double executionTime;
+        private boolean passed = true;
 
         private Step(StepType stepType, A reference, Object... args) {
             this.stepType = stepType;
@@ -210,8 +278,16 @@ public class Framework {
             describeAs(this.stepDefinition);
         }
 
-        public StepType type() {
+        public StepType getType() {
             return this.stepType;
+        }
+
+        public String getStepDefinition() {
+            return this.stepDefinition;
+        }
+
+        public boolean getPassed() {
+            return this.passed;
         }
 
         public static <A> Step<?, ?> of(StepType stepType, A step, Object... args) {
@@ -228,11 +304,11 @@ public class Framework {
             if (this.args.length > 0) {
                 for (Object arg : this.args) {
                     if (arg != null) {
-                        stepDefinition = stepDefinition.replaceFirst("\\{(.*?)}", arg.toString());
+                        stepDefinition = stepDefinition.replaceFirst(" \\{(.*?)}", " " + arg);
                     }
                 }
             } if (expected != null) {
-                stepDefinition = stepDefinition.replaceFirst("\\[(.*?)]", expected.toString());
+                stepDefinition = stepDefinition.replaceFirst(" \\[(.*?)]", " " + expected);
             }
             this.stepDefinition = stepDefinition;
             return this;
@@ -240,7 +316,7 @@ public class Framework {
 
         public Step<?, ?> satisfies(OneParamConsumer<?> condition) {
             if (!isSupplier(this.reference)) {
-                throw new RuntimeException("This can only be used for methods with a return value!");
+                throw new RuntimeException(NOT_A_SUPPLIER_ERROR);
             }
             this.condition = (B) condition;
             return this;
@@ -248,11 +324,16 @@ public class Framework {
 
         public <Q> Step<?, ?> satisfies(TwoParamConsumer<Q, Q> condition, Object expected) {
             if (!isSupplier(this.reference)) {
-                throw new RuntimeException("This can only be used for methods with a return value!");
+                throw new RuntimeException(NOT_A_SUPPLIER_ERROR);
             }
             this.condition = (B) condition;
+            if (expected == null) {
+                // Explicitly set null is different from not having an expected return value
+                expected = "null";
+            }
             this.expected = expected;
             // Update description if needed after adding an expected value
+            // Whether this is needed depends on the order of calling satisfies and describeAs
             if (this.stepDefinition != null) {
                 describeAs(this.stepDefinition);
             }
@@ -263,6 +344,17 @@ public class Framework {
         public Step<?, ?> withArgs(Object... args) {
             return new Step<>(this, args);
         }
+
+        public double getExecutionTime() {
+            return this.executionTime;
+        }
+
+        public void setExecutionTime(double executionTime) {
+            this.executionTime = executionTime;
+        }
+
+        private static final String NOT_A_SUPPLIER_ERROR =
+                "This can only be used for methods with a return value!";
     }
 
 

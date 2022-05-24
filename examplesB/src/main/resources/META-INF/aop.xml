@@ -3,9 +3,13 @@
         <include within="com.jiial.bumbleB.aspects.*"/>
         <include within="com.jiial.bumbleB.examples.integrationSteps.*"/>
         <include within="com.jiial.bumbleB.examples.uiSteps.*"/>
-        <include within="com.jiial.bumbleB.examples.*"/>
+        <include within="com.jiial.bumbleB.examples.unitTests.*"/>
+        <include within="com.jiial.bumbleB.examples.integrationTests.*"/>
+        <include within="com.jiial.bumbleB.examples.uiTests.*"/>
+        <include within="org.junit.jupiter.api.AssertionUtils.*"/>
     </weaver>
     <aspects>
+        <aspect name="com.jiial.bumbleB.aspects.ExampleAspect"/>
         <aspect name="com.jiial.bumbleB.aspects.StepAspect"/>
     </aspects>
 </aspectj>

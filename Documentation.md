@@ -7,6 +7,10 @@
 
 
 ## 1. Getting started
+If you are starting a new project, consider using the [examplesB](examplesB)-project as a starting point to skip most of
+the steps below.
+
+
 To use bumbleB, you need to add the following Maven-dependencies to your project:
 ```
 <dependency>
@@ -66,7 +70,8 @@ To enable AspectJ, you will also need to create a src/main/resources/META-INF/ao
 ```
 AspectJ is used to access information about parameters passed to method within given/when/then-steps.
 
-If you're starting a new project, you can just use the [examplesB](examplesB)-project as your starting point to skip all of these steps.
+If you started with the [examplesB](examplesB)-project as your starting point you can skip all
+the steps above.
 
 Finally, you have to set the *settings.localRepository* environment variable to your local Maven repository. This is used in the Maven surefire plugin configuration for AspectJ to find the aspect weaver.
 

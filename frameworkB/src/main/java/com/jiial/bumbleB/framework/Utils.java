@@ -1,11 +1,44 @@
 package com.jiial.bumbleB.framework;
 
+import com.jiial.bumbleB.logging.DefaultLoggerImplementation;
+import com.jiial.bumbleB.logging.Logger;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Scanner;
 import java.util.function.Supplier;
 
 /**
  * Utility classes and methods used by the {@link Framework}.
  */
 public class Utils {
+
+    static Logger getLogger() {
+        Logger customLogger = getCustomLogger();
+        if (customLogger != null) {
+            return customLogger;
+        }
+        return new DefaultLoggerImplementation();
+    }
+
+    private static Logger getCustomLogger() {
+        File loggerConfig = new File("src/main/resources/META-INF/bumbleB.logger");
+        if (loggerConfig.exists()) {
+            Scanner reader;
+            try {
+                reader = new Scanner(loggerConfig);
+                String pathToLogger = reader.nextLine();
+                reader.close();
+                Class<?> clazz = Class.forName(pathToLogger);
+                return (Logger) clazz.getDeclaredConstructor().newInstance();
+            } catch (FileNotFoundException | ClassNotFoundException | InstantiationException
+                    | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
     public static boolean isSupplier(Object object) {
         return object instanceof Supplier | object instanceof OneParamSupplier<?> | object instanceof

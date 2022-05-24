@@ -3,10 +3,9 @@ package com.jiial.bumbleB.aspects;
 import com.jiial.bumbleB.annotations.Step;
 import com.jiial.bumbleB.framework.Framework;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.opentest4j.AssertionFailedError;
 
 import java.lang.reflect.Method;
 
@@ -31,5 +30,10 @@ public class StepAspect {
             }
             Framework.state.get().setStepDefinition(annotationValue);
         }
+    }
+
+    @AfterThrowing(pointcut="callStep(step)", throwing="ex")
+    public void stepAssertionFails(Step step, AssertionFailedError ex) {
+        Framework.state.get().setStepPassed(false);
     }
 }

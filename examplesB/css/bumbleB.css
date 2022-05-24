@@ -1,0 +1,74 @@
+td[result='SUCCESSFUL'] {
+    color: greenyellow;
+}
+
+td[result='ABORTED'] {
+    color: red;
+}
+
+td[result='FAILED'] {
+    color: red;
+}
+
+summary[result='SUCCESSFUL'] {
+    color: greenyellow;
+}
+
+summary[result='ABORTED'] {
+    color: red;
+}
+
+summary[result='FAILED'] {
+    color: red;
+}
+
+details summary {
+    cursor: pointer;
+}
+
+details summary > * {
+    display: inline;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid deepskyblue;
+}
+
+tr:hover {
+    background-color: darkslategray;
+}
+
+th {
+    text-align: left;
+    background-color: lightskyblue;
+    color: darkblue;
+    font-size: larger;
+}
+
+tr {
+    background-color: slategray;
+}
+
+body {
+    background-color: royalblue;
+}
+
+h1 {
+    color: lightskyblue;
+    border-bottom: 1px solid;
+}
+
+b[result=true] {
+    color: springgreen;
+}
+
+b[result=false] {
+    color: red;
+}

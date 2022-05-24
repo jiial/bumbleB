@@ -3,6 +3,7 @@ package com.jiial.bumbleB.examples.integrationTests;
 import com.jiial.bumbleB.annotations.Example;
 import com.jiial.bumbleB.examples.integrationSteps.ShopSteps;
 import com.jiial.bumbleB.examples.Item;
+import com.jiial.bumbleB.framework.Framework.ExampleDefinition.ExampleBuilder;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import static com.jiial.bumbleB.framework.Framework.*;
 
 public class ShoppingCartTest {
 
-    private final ExampleDefinition.ExampleBuilder exampleBuilder = new ExampleDefinition.ExampleBuilder();
+    private final ExampleBuilder exampleBuilder = new ExampleBuilder();
     private ShopSteps shopSteps;
     private final String FIRST_NAME = "Bob";
     private final String LAST_NAME = "Barker";

@@ -1,4 +1,4 @@
-package unitTests;
+package com.jiial.bumbleB.unitTests;
 
 import com.jiial.bumbleB.framework.Framework;
 import org.junit.jupiter.api.Test;

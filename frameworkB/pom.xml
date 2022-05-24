@@ -19,6 +19,18 @@
         <aspectj.version>1.9.9.1</aspectj.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.8.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.jiial.bumbleB</groupId>
@@ -48,13 +60,17 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
+            <groupId>com.j2html</groupId>
+            <artifactId>j2html</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.8.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -110,6 +126,12 @@
                         </argLine>
                         <useSystemClassLoader>true</useSystemClassLoader>
                         <forkMode>always</forkMode>
+                        <properties>
+                            <property>
+                                <name>listener</name>
+                                <value>com.jiial.bumbleB.framework.ExampleListener</value>
+                            </property>
+                        </properties>
                     </configuration>
                 </plugin>
             </plugins>

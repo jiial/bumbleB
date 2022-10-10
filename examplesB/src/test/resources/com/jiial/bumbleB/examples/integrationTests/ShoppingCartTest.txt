@@ -1,37 +1,37 @@
 Example: User is able to add items to cart and remove them
 
-Given the items {items} have been added to stock
-And customer {firstName} {lastName} is logged in
-And the customer's contact information is set to {contactInfo}
-When the customer adds item {item} to the cart
-And the customer removes item {item} from the cart
-And the customer adds item {item} to the cart
-And the customer adds item {item} to the cart
-And the customer removes item {item} from the cart
-And the customer removes item {item} from the cart
+Given the items POTATOES have been added to stock
+And customer FIRST_NAME LAST_NAME is logged in
+And the customer's contact information is set to CONTACT_INFO
+When the customer adds item POTATO to the cart
+And the customer removes item POTATO from the cart
+And the customer adds item POTATO to the cart
+And the customer adds item POTATO to the cart
+And the customer removes item POTATO from the cart
+And the customer removes item POTATO from the cart
 Then the cart is empty
 	Because: Every item that was added was also removed
 
 
 Example: User can't delete items from an empty cart
 
-Given the items {items} have been added to stock
-And customer {firstName} {lastName} is logged in
-And the customer's contact information is set to {contactInfo}
+Given the items EMPTY_ITEMS have been added to stock
+And customer FIRST_NAME LAST_NAME is logged in
+And the customer's contact information is set to CONTACT_INFO
 Then removing item {item} from cart throws an exception
 	Because: The cart is empty
-And removing item {item} from stock throws an exception
+And removing item TOMATO from stock throws an exception
 
 
 Example: Item prices are counted correctly
 
-Given the items {items} have been added to stock
-And customer {firstName} {lastName} is logged in
-When the items {items} have been added to stock
-And the customer adds item {item} to the cart
-And the customer adds item {item} to the cart
-And the customer adds item {item} to the cart
-And the customer adds item {item} to the cart
-Then the shopping cart price is equal to {expected}
-After the customer removes item {item} from the cart
-Then the shopping cart price is equal to {expected}
+Given the items POTATOES have been added to stock
+And customer FIRST_NAME LAST_NAME is logged in
+When the items TOMATOES have been added to stock
+And the customer adds item POTATO to the cart
+And the customer adds item POTATO to the cart
+And the customer adds item TOMATO to the cart
+And the customer adds item TOMATO to the cart
+Then the shopping cart price is equal to 5.0
+After the customer removes item POTATO from the cart
+Then the shopping cart price is equal to 4.0

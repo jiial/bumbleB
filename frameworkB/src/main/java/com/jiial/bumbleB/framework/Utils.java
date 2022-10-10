@@ -23,17 +23,13 @@ public class Utils {
     }
 
     private static Logger getCustomLogger() {
-        File loggerConfig = new File("src/main/resources/META-INF/bumbleB.logger");
-        if (loggerConfig.exists()) {
-            Scanner reader;
+        String logger = System.getProperty("bumbleB_ref_to_logger");
+        if (logger != null) {
+            Class<?> clazz;
             try {
-                reader = new Scanner(loggerConfig);
-                String pathToLogger = reader.nextLine();
-                reader.close();
-                Class<?> clazz = Class.forName(pathToLogger);
+                clazz = Class.forName(logger);
                 return (Logger) clazz.getDeclaredConstructor().newInstance();
-            } catch (FileNotFoundException | ClassNotFoundException | InstantiationException
-                    | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }

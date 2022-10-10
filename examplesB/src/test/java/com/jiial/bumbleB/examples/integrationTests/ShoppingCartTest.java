@@ -27,13 +27,15 @@ public class ShoppingCartTest {
             "Email", "bob.barker@email.com"
     );
     private final Item POTATO = new Item("Potato", 1.0);
-    private final Item CUCUMBER = new Item("Cucumber", 1.5);
-    private final List<Item> ITEMS = List.of(POTATO, POTATO);
+    private final Item TOMATO = new Item("Tomato", 1.5);
+    private final List<Item> POTATOES = List.of(POTATO, POTATO);
     private final List<Item> EMPTY_ITEMS = List.of();
+    private final List<Item> TOMATOES = List.of(TOMATO, TOMATO);
 
     @BeforeEach
     public void init() {
         shopSteps = new ShopSteps();
+        System.setProperty("bumbleB_ref_to_logger", "com.jiial.bumbleB.examples.extensions.MyCustomLogger");
     }
 
     @Example
@@ -41,7 +43,7 @@ public class ShoppingCartTest {
         exampleBuilder
                 .name("User is able to add items to cart and remove them")
                 .steps(
-                        given(shopSteps::addItemsToStock, ITEMS),
+                        given(shopSteps::addItemsToStock, POTATOES),
                         and(shopSteps::userLogsIn, FIRST_NAME, LAST_NAME),
                         and(shopSteps::setContactInfo, CONTACT_INFO),
                         when(shopSteps::addItemToCart, POTATO),
@@ -65,9 +67,9 @@ public class ShoppingCartTest {
                         given(shopSteps::addItemsToStock, EMPTY_ITEMS),
                         and(shopSteps::userLogsIn, FIRST_NAME, LAST_NAME),
                         and(shopSteps::setContactInfo, CONTACT_INFO),
-                        then(shopSteps::removingFromCartThrowsException, CUCUMBER)
+                        then(shopSteps::removingFromCartThrowsException, TOMATO)
                                 .because("The cart is empty"),
-                        and(shopSteps::removingFromEmptyStockThrowsException, CUCUMBER)
+                        and(shopSteps::removingFromEmptyStockThrowsException, TOMATO)
                 )
                 .build()
                 .run();
@@ -78,13 +80,13 @@ public class ShoppingCartTest {
         exampleBuilder
                 .name("Item prices are counted correctly")
                 .steps(
-                        given(shopSteps::addItemsToStock, ITEMS),
+                        given(shopSteps::addItemsToStock, POTATOES),
                         and(shopSteps::userLogsIn, FIRST_NAME, LAST_NAME),
-                        when(shopSteps::addItemsToStock, List.of(CUCUMBER, CUCUMBER)),
+                        when(shopSteps::addItemsToStock, TOMATOES),
                         and(shopSteps::addItemToCart, POTATO),
                         and(shopSteps::addItemToCart, POTATO),
-                        and(shopSteps::addItemToCart, CUCUMBER),
-                        and(shopSteps::addItemToCart, CUCUMBER),
+                        and(shopSteps::addItemToCart, TOMATO),
+                        and(shopSteps::addItemToCart, TOMATO),
                         then(shopSteps::assertCartPrice, 5.0),
                         after(shopSteps::removeItemFromCart, POTATO),
                         then(shopSteps::assertCartPrice, 4.0)

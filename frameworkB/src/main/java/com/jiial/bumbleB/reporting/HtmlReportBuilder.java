@@ -114,9 +114,7 @@ public class HtmlReportBuilder {
         return html(
                 head(
                         title("Test results"),
-                        link().withRel("stylesheet").withHref("/css/default.css"),
-                        link().withRel("stylesheet").withHref("/css/bumbleB.css"),
-                        script("/js/bumbleB.js")
+                        style(css)
                 ),
                 body(
                         h1("Test results"),
@@ -136,4 +134,80 @@ public class HtmlReportBuilder {
                 )
         ).render();
     }
+
+    // The css style is defined as a string, since referencing a separate css file from other projects caused issues
+    private static final String css = "td[result='SUCCESSFUL'] {\n" +
+            "    color: darkgreen;\n" +
+            "}\n" +
+            "\n" +
+            "td[result='ABORTED'] {\n" +
+            "    color: red;\n" +
+            "}\n" +
+            "\n" +
+            "td[result='FAILED'] {\n" +
+            "    color: red;\n" +
+            "}\n" +
+            "\n" +
+            "summary[result='SUCCESSFUL'] {\n" +
+            "    color: darkgreen;\n" +
+            "}\n" +
+            "\n" +
+            "summary[result='ABORTED'] {\n" +
+            "    color: red;\n" +
+            "}\n" +
+            "\n" +
+            "summary[result='FAILED'] {\n" +
+            "    color: red;\n" +
+            "}\n" +
+            "\n" +
+            "details summary {\n" +
+            "    cursor: pointer;\n" +
+            "}\n" +
+            "\n" +
+            "details summary > * {\n" +
+            "    display: inline;\n" +
+            "}\n" +
+            "\n" +
+            "table {\n" +
+            "    border-collapse: collapse;\n" +
+            "    width: 100%;\n" +
+            "}\n" +
+            "\n" +
+            "th, td {\n" +
+            "    padding: 8px;\n" +
+            "    text-align: left;\n" +
+            "    border-bottom: 1px solid palegreen;\n" +
+            "}\n" +
+            "\n" +
+            "tr:hover {\n" +
+            "    background-color: lightgreen;\n" +
+            "}\n" +
+            "\n" +
+            "th {\n" +
+            "    text-align: left;\n" +
+            "    background-color: darkgreen;\n" +
+            "    color: palegreen;\n" +
+            "    font-size: larger;\n" +
+            "}\n" +
+            "\n" +
+            "tr {\n" +
+            "    background-color: darkseagreen;\n" +
+            "}\n" +
+            "\n" +
+            "body {\n" +
+            "    background-color: darkolivegreen;\n" +
+            "}\n" +
+            "\n" +
+            "h1 {\n" +
+            "    color: palegreen;\n" +
+            "    border-bottom: 1px solid;\n" +
+            "}\n" +
+            "\n" +
+            "b[result=true] {\n" +
+            "    color: black;\n" +
+            "}\n" +
+            "\n" +
+            "b[result=false] {\n" +
+            "    color: red;\n" +
+            "}";
 }

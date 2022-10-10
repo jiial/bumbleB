@@ -7,7 +7,7 @@
     <groupId>com.jiial.bumbleB</groupId>
     <artifactId>bumbleB</artifactId>
     <packaging>pom</packaging>
-    <version>v0.1.0-alpha</version>
+    <version>v0.1.1-alpha</version>
     <modules>
         <module>processorsB</module>
         <module>examplesB</module>

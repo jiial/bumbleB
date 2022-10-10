@@ -5,11 +5,11 @@
     <parent>
         <artifactId>bumbleB</artifactId>
         <groupId>com.jiial.bumbleB</groupId>
-        <version>v0.1.0-alpha</version>
+        <version>v0.1.1-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>examples</artifactId>
-    <version>v0.1.0-alpha</version>
+    <version>v0.1.1-alpha</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.jiial.bumbleB</groupId>
             <artifactId>frameworkB</artifactId>
-            <version>v0.1.0-alpha</version>
+            <version>v0.1.1-alpha</version>
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
